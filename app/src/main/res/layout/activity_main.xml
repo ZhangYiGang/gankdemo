@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+   android:id="@+id/ly_activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.MainActivity">
+
+    <LinearLayout
+        android:id="@+id/ly_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/topBar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="my app"
+            android:textColor="@color/topBarText" />
+    </LinearLayout>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/ly_top_bar"
+        app:layout_constraintBottom_toTopOf="@id/rg_tab_bar" />
+    <RadioGroup
+        android:id="@+id/rg_tab_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toBottomOf="@+id/ly_activity_main"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/button_page_1"
+            style="@style/tab_button"
+            android:text="1" />
+
+        <RadioButton
+            android:id="@+id/button_page_2"
+            style="@style/tab_button"
+            android:text="2" />
+
+        <RadioButton
+            android:id="@+id/button_page_3"
+            style="@style/tab_button"
+            android:text="3" />
+
+        <RadioButton
+            android:id="@+id/button_page_4"
+            style="@style/tab_button"
+            android:text="4" />
+
+    </RadioGroup>
+
+
+</android.support.constraint.ConstraintLayout>
