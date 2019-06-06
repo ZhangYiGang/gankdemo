@@ -5,12 +5,16 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.zhangyigang.gankdemo.R;
+import com.example.zhangyigang.gankdemo.adapter.PictureAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,8 +36,9 @@ public class PictureFragemnt extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    @BindView(R.id.text_frag_picture)
-    public TextView textView;
+    @BindView(R.id.rv_picture)
+    public RecyclerView mRecyclerView;
+    public PictureAdapter mPictureAdapter;
     private OnFragmentInteractionListener mListener;
 
     public PictureFragemnt() {
@@ -73,7 +78,8 @@ public class PictureFragemnt extends Fragment {
         // Inflate the layout for this fragment
         View inflate = inflater.inflate(R.layout.fragment_picture, container, false);
         ButterKnife.bind(this,inflate);
-        textView.setText("picture");
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));//设置layout
+        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter());//设置adapter
         return inflate;
     }
 
