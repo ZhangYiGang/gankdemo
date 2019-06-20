@@ -6,4 +6,6 @@
     <color name="topBar">#fcf3f3</color>
     <color name="topBarText">#1b1919</color>
     <color name="fullBlack">#000000</color>
+    <color name="gradualStart">#efebb1</color>
+    <color name="gradualEnd">#edb545</color>
 </resources>

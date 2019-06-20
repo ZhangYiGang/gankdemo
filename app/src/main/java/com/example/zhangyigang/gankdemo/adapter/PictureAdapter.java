@@ -12,6 +12,7 @@ import com.example.zhangyigang.gankdemo.R;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,25 +23,43 @@ import butterknife.ButterKnife;
  */
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureHolder> {
     private PictureHolder mPictureHolder;
-    private ArrayList<String> mData; 
+    private List<String> mData;
+    private ItemClick itemClick;
+    public PictureAdapter(List<String> data){
+        mData = data;
+    }
+
+    public interface ItemClick{
+        public void setText(int position);
+    }
+
+    public void setItemClick(ItemClick itemClick){
+        this.itemClick = itemClick;
+    }
     @NonNull
     @Override
     public PictureHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         mPictureHolder = new PictureHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_picture,viewGroup,false));
-        initData();
+//创建viewholder
         return mPictureHolder;
     }
 
-    private void initData() {
-        for (int i = 'A'; i < 'G'; i++)
-        {
-            mData.add("" + (char) i);
-        }
-    }
 
     @Override
-    public void onBindViewHolder(@NonNull PictureHolder pictureHolder, int position) {
+    public void onBindViewHolder(@NonNull PictureHolder pictureHolder, final int position) {
+        String text = mData.get(position);
+//        绑定数据
+//        todo 这里后面可以添加一个函数 bind（data)
         mPictureHolder.textView.setText(mData.get(position));
+        if (itemClick!=null){
+            mPictureHolder.textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    itemClick.setText(position);
+                }
+            });
+        }
+
     }
 
 
@@ -55,7 +74,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
         public TextView textView;
         public PictureHolder(@NonNull View itemView) {
             super(itemView);
-            ButterKnife.bind(itemView);
+            ButterKnife.bind(this,itemView);
 
         }
     }

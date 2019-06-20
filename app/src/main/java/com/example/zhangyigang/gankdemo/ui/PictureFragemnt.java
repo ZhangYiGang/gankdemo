@@ -1,20 +1,27 @@
 package com.example.zhangyigang.gankdemo.ui;
 
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import android.widget.Toast;
 import com.example.zhangyigang.gankdemo.R;
+import com.example.zhangyigang.gankdemo.adapter.MyDecoration;
 import com.example.zhangyigang.gankdemo.adapter.PictureAdapter;
+import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,11 +43,20 @@ public class PictureFragemnt extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private ArrayList<String> mData;
     @BindView(R.id.rv_picture)
     public RecyclerView mRecyclerView;
-    public PictureAdapter mPictureAdapter;
-    private OnFragmentInteractionListener mListener;
+    @BindView(R.id.rl_picture)
+    public SwipeRefreshLayout mRefreshLayout= null;
+    public PictureAdapter mPictureAdapter =null;
+    public PictureAsycTask mPictureAsycTask = null;
+    private OnFragmentInteractionListener mListener = null;
+    private static Handler mHandler =new Handler(){
+        @Override
+        public void handleMessage(Message message){
 
+        }
+    };
     public PictureFragemnt() {
         // Required empty public constructor
     }
@@ -72,14 +88,43 @@ public class PictureFragemnt extends Fragment {
         }
     }
 
+    private void initData() {
+        mData = new ArrayList<String>();
+        for (int i = 'A'; i < 'G'; i++)
+        {
+            mData.add("" + (char) i);
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View inflate = inflater.inflate(R.layout.fragment_picture, container, false);
         ButterKnife.bind(this,inflate);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));//设置layout
-        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter());//设置adapter
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));//设置layout
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPictureAsycTask = new PictureAsycTask(mHandler);
+                        mPictureAsycTask.execute();
+                        mRefreshLayout.setRefreshing(false);
+                    }
+                },2000);
+            }
+        });
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(),2));
+        initData();
+        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter(mData));//设置adapter
+//        mRecyclerView.addItemDecoration(new MyDecoration(this.getContext(),MyDecoration.VERTICAL_LIST));
+        mPictureAdapter.setItemClick(new PictureAdapter.ItemClick() {
+            @Override
+            public void setText(int position) {
+                Toast.makeText(PictureFragemnt.this.getContext(),"这是"+position+"个",Toast.LENGTH_SHORT).show();
+            }
+        });
         return inflate;
     }
 
