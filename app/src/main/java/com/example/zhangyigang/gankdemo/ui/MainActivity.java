@@ -1,5 +1,7 @@
 package com.example.zhangyigang.gankdemo.ui;
 
+import android.Manifest;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -82,4 +84,21 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 //            s
         }
     }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case 1:
+                switch (permissions[0]){
+                    case Manifest.permission.READ_CONTACTS://权限1
+
+                        break;
+                    case Manifest.permission.CALL_PHONE://权限2
+                        break;
+                    default:
+                        Log.d("Mainactivity","权限");
+                }
+                break;
+            default:
+        }
+    }
+
 }

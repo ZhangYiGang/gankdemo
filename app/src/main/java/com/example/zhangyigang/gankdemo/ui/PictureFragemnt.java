@@ -108,7 +108,7 @@ public class PictureFragemnt extends Fragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mPictureAsycTask = new PictureAsycTask(mHandler);
+                        mPictureAsycTask = new PictureAsycTask(mHandler, PictureFragemnt.this.getActivity());
                         mPictureAsycTask.execute();
                         mRefreshLayout.setRefreshing(false);
                     }
@@ -117,7 +117,7 @@ public class PictureFragemnt extends Fragment {
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(),2));
         initData();
-        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter(mData));//设置adapter
+        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter(mData, this.getContext()));//设置adapter
 //        mRecyclerView.addItemDecoration(new MyDecoration(this.getContext(),MyDecoration.VERTICAL_LIST));
         mPictureAdapter.setItemClick(new PictureAdapter.ItemClick() {
             @Override

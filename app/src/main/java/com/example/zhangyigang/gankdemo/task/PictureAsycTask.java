@@ -1,8 +1,15 @@
 package com.example.zhangyigang.gankdemo.task;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+
+import com.example.zhangyigang.gankdemo.utils.FileUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -19,12 +26,14 @@ import okhttp3.Response;
  */
 public class PictureAsycTask extends AsyncTask {
     private Handler mHandler =null;
-    public PictureAsycTask(Handler handler){
+    private Activity mActivity = null;
+    public PictureAsycTask(Handler handler, Activity context){
         mHandler = handler;
+        mActivity = context;
     }
     @Override
     protected Object doInBackground(Object[] objects) {
-        String url = "http://wwww.baidu.com";
+        String url = "http://gank.io/api/data/福利/10/1";
         OkHttpClient okHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url(url)
@@ -39,9 +48,32 @@ public class PictureAsycTask extends AsyncTask {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d("pictureTask", "onResponse: " + response.body().string());
+                String content =response.body().string();
+                if (FileUtils.isExternalStorageWritable(mActivity)){
+                    FileUtils.writeToFile(content);
+                    Log.d("pictureTask", "onResponse: " + content);
+                    String imageUrl = parseJson(content);
+                    Message message = new Message();
+//                    message.setData();
+                    PictureAsycTask.this.mHandler.sendMessage();
+                }
+
+
             }
         });
         return null;
     }
+
+    private String parseJson(String content) {
+        try {
+            JSONObject imageObject = new JSONObject(content);
+            String imageUrl = new JSONObject(imageObject.getString("results")).getString("url");
+            return imageUrl;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
+

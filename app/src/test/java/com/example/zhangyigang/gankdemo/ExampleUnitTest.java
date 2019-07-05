@@ -2,6 +2,8 @@ package com.example.zhangyigang.gankdemo;
 
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.*;
 
 /**
@@ -13,5 +15,10 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
+        System.out.print("1");
+    }
+    @Test
+    public void is_file_exsit(){
+        File file =new File("");
     }
 }
