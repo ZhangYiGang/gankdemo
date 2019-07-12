@@ -15,11 +15,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.zhangyigang.gankdemo.R;
+import com.example.zhangyigang.gankdemo.constant.Constant;
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,18 +33,21 @@ import butterknife.ButterKnife;
  */
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureHolder> {
     private PictureHolder mPictureHolder;
-    private List<String> mData;
+    private ArrayList<HashMap<String, Object>>  mData;
     private ItemClick itemClick;
     private Context mContext;
-    public PictureAdapter(List<String> data){
+    private int initalNum = Constant.PICTURE_ADAPTER_INITUM_DATA_NUM;
+    private int addNum = Constant.PICTURE_ADAPTER_ADD_DATA_NUM;
+    private int mNowStart, mNowEnd;
+    public PictureAdapter(ArrayList<HashMap<String, Object>>  data){
         mData = data;
     }
-    public PictureAdapter(List<String> data, Context context){
-        mData = data;
+    public PictureAdapter( Context context){
         mContext = context;
+        initData();
     }
     public interface ItemClick{
-        public void setText(int position);
+         void setText(int position);
     }
 
     public void setItemClick(ItemClick itemClick){
@@ -54,15 +60,73 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
 //创建viewholder
         return mPictureHolder;
     }
+    /*
+    * 初始化data
+    * */
+    private void initData() {
+//        mData = new ArrayList<String>();
+        mData = new ArrayList<HashMap<String,Object>>();
+        HashMap<String, Object> itemData ;
+        for (int i = 'A'; i < 'A'+initalNum; i++)
+        {
+            itemData = new  HashMap<String, Object>();
+            itemData.put("pictureText", "" + (char) i);
+            itemData.put("pictureUrl",null);
+            mData.add(itemData);
+//            mData.add("" + (char) i);
+        }
+        mNowStart = 0;
+        mNowEnd =  0;
+    }
+    /*
+    * 这个函数是为了刷新时确定上下界
+    * */
+    public void flushBitmapPullup(Bitmap[] bitmapArray){
+        HashMap<String, Object> mapData ;
+        mNowEnd = mNowStart;
+        for (Bitmap bitmap: bitmapArray) {
+            mapData = (HashMap<String, Object>) mData.get(mNowEnd);
+            mNowEnd++;
+            mapData.put("pictureUrl", bitmap);
+        }
 
+        notifyItemRangeChanged(mNowStart,mNowEnd-mNowStart);
+    }
+/*
+* 此方法只有在调用 notifyItemChanged(index)方法时才会生效
+* */
+    @Override
+    public void onBindViewHolder(@NonNull PictureHolder pictureHolder, int position, List<Object> payloads) {
 
+        if (payloads.isEmpty()) {
+//            payload为空,说明不需要改变
+            onBindViewHolder(pictureHolder, position);
+        } else {
+            HashMap<String, Object> mapData = (HashMap<String, Object>) payloads.get(position);
+            String stringInfo= (String) mapData.get("pictureText");
+            Bitmap bitmap = (Bitmap) mapData.get("pictureUrl");
+            if (stringInfo != null) {
+//                holder.mPbDownProgress.setProgress(appInfoBean.getProgress());
+                pictureHolder.textView.setText(stringInfo);
+            }
+            if (bitmap != null){
+                pictureHolder.ivAdapter.setImageBitmap(bitmap);
+            }
+        }
+    }
     @Override
     public void onBindViewHolder(@NonNull PictureHolder pictureHolder, final int position) {
-        String text = mData.get(position);
-//        绑定数据
+        HashMap<String, Object> mapData = (HashMap<String, Object>) mData.get(position);
+        String stringInfo= (String) mapData.get("pictureText");
+        Bitmap bitmap = (Bitmap) mapData.get("pictureUrl");
 //        todo 这里后面可以添加一个函数 bind（data)
-        mPictureHolder.textView.setText(mData.get(position));
-        mPictureHolder.ivAdapter.setImageBitmap(getDrableImage(mContext,"isloading"));
+        if (bitmap != null){
+            pictureHolder.ivAdapter.setImageBitmap(bitmap);
+        }
+        else{
+            mPictureHolder.ivAdapter.setImageBitmap(getDrableImage(mContext,"isloading"));
+        }
+        mPictureHolder.textView.setText(stringInfo);
         if (itemClick!=null){
             mPictureHolder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override

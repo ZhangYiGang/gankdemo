@@ -2,6 +2,7 @@ package com.example.zhangyigang.gankdemo.ui;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,8 +10,8 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +20,12 @@ import android.widget.Toast;
 import com.example.zhangyigang.gankdemo.R;
 import com.example.zhangyigang.gankdemo.adapter.MyDecoration;
 import com.example.zhangyigang.gankdemo.adapter.PictureAdapter;
+import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,7 +47,6 @@ public class PictureFragemnt extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private ArrayList<String> mData;
     @BindView(R.id.rv_picture)
     public RecyclerView mRecyclerView;
     @BindView(R.id.rl_picture)
@@ -51,10 +54,15 @@ public class PictureFragemnt extends Fragment {
     public PictureAdapter mPictureAdapter =null;
     public PictureAsycTask mPictureAsycTask = null;
     private OnFragmentInteractionListener mListener = null;
-    private static Handler mHandler =new Handler(){
+    private  Handler mHandler =new Handler(){
         @Override
         public void handleMessage(Message message){
-
+            switch (message.what){
+                case Constant.HANDLER_PICTUREURL_WHAT:
+                    Bitmap[] bitmapArray = (Bitmap[]) message.obj;
+                    mPictureAdapter.flushBitmapPullup(bitmapArray);
+//                    PictureFragemnt.this.mPictureAdapter.setBitmap(bitmap);
+            }
         }
     };
     public PictureFragemnt() {
@@ -88,13 +96,7 @@ public class PictureFragemnt extends Fragment {
         }
     }
 
-    private void initData() {
-        mData = new ArrayList<String>();
-        for (int i = 'A'; i < 'G'; i++)
-        {
-            mData.add("" + (char) i);
-        }
-    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -112,12 +114,11 @@ public class PictureFragemnt extends Fragment {
                         mPictureAsycTask.execute();
                         mRefreshLayout.setRefreshing(false);
                     }
-                },2000);
+                },1000);
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(),2));
-        initData();
-        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter(mData, this.getContext()));//设置adapter
+        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter( this.getContext()));//设置adapter
 //        mRecyclerView.addItemDecoration(new MyDecoration(this.getContext(),MyDecoration.VERTICAL_LIST));
         mPictureAdapter.setItemClick(new PictureAdapter.ItemClick() {
             @Override

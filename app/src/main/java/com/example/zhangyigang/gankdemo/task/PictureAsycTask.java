@@ -1,23 +1,25 @@
 package com.example.zhangyigang.gankdemo.task;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.utils.FileUtils;
+import com.example.zhangyigang.gankdemo.utils.HttpClientUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 
 /**
@@ -34,44 +36,68 @@ public class PictureAsycTask extends AsyncTask {
     @Override
     protected Object doInBackground(Object[] objects) {
         String url = "http://gank.io/api/data/福利/10/1";
-        OkHttpClient okHttpClient = new OkHttpClient();
-        final Request request = new Request.Builder()
-                .url(url)
-                .get()//默认就是GET请求，可以不写
-                .build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d("pictureTask", "onFailure: "+e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String content =response.body().string();
-                if (FileUtils.isExternalStorageWritable(mActivity)){
-                    FileUtils.writeToFile(content);
-                    Log.d("pictureTask", "onResponse: " + content);
-                    String imageUrl = parseJson(content);
-                    Message message = new Message();
-//                    message.setData();
-                    PictureAsycTask.this.mHandler.sendMessage();
-                }
-
-
-            }
-        });
+        getImageFromUrl(url);
         return null;
     }
 
-    private String parseJson(String content) {
+    private void getImageFromUrl(String content) {
+        HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
+        String jsonContent = httpClientUtils.httpGetString(content);
+        String [] imageUrlArray = parseJson(jsonContent);
+        Bitmap [] bitmapArray = parseUrl(imageUrlArray);
+
+        Message message = new Message();
+//        Bundle bundle = new Bundle();
+//        bundle.putString("url",imageUrl);
+//        message.setData(bundle);
+//        以上是传递bundle的信息
+        message.what = Constant.HANDLER_PICTUREURL_WHAT;
+        message.obj = bitmapArray;
+        PictureAsycTask.this.mHandler.sendMessage(message);
+
+//        if (FileUtils.isExternalStorageWritable(mActivity)){
+//            FileUtils.writeToFile(content);
+////                    这个是测试是否能写入文件的
+//        }
+    }
+
+    private Bitmap[] parseUrl(String[] imageUrlArray) {
+        Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+        HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
+        ArrayList<Bitmap > urlArray= new ArrayList<Bitmap>();
+        for (String imageUrl:imageUrlArray) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    InputStream inputStream = httpClientUtils.httpGetStream(imageUrl);
+                    Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+                    urlArray.add(bitmap);
+                }
+            }).run();
+
+        }
+        Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+        return urlArray.toArray(new Bitmap[urlArray.size()]);
+    }
+
+    private String[] parseJson(String content) {
+        ArrayList<String > urlArray= new ArrayList<String>();
+        Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
         try {
             JSONObject imageObject = new JSONObject(content);
-            String imageUrl = new JSONObject(imageObject.getString("results")).getString("url");
-            return imageUrl;
+            JSONArray array = imageObject.getJSONArray("results");
+            for(int i=0;i<Constant.PICTURE_ADAPTER_INITUM_DATA_NUM;i++){
+                imageObject = array.getJSONObject(i);
+                urlArray.add( imageObject.getString("url"));
+            }
+            return  urlArray.toArray(new String[urlArray.size()]);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
 
