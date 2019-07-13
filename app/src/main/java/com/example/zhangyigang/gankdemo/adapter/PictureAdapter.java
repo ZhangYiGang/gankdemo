@@ -84,13 +84,16 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
     public void flushBitmapPullup(Bitmap[] bitmapArray){
         HashMap<String, Object> mapData ;
         mNowEnd = mNowStart;
+        ArrayList <HashMap<String, Object>>  changeData = new ArrayList<HashMap<String,Object>>();
         for (Bitmap bitmap: bitmapArray) {
             mapData = (HashMap<String, Object>) mData.get(mNowEnd);
             mNowEnd++;
             mapData.put("pictureUrl", bitmap);
+            changeData.add(mapData);
         }
 
         notifyItemRangeChanged(mNowStart,mNowEnd-mNowStart);
+//    notifyDataSetChanged();
     }
 /*
 * 此方法只有在调用 notifyItemChanged(index)方法时才会生效
@@ -102,7 +105,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
 //            payload为空,说明不需要改变
             onBindViewHolder(pictureHolder, position);
         } else {
-            HashMap<String, Object> mapData = (HashMap<String, Object>) payloads.get(position);
+            HashMap<String, Object> mapData = (HashMap<String, Object>) (payloads.get(position));
             String stringInfo= (String) mapData.get("pictureText");
             Bitmap bitmap = (Bitmap) mapData.get("pictureUrl");
             if (stringInfo != null) {
@@ -124,11 +127,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
             pictureHolder.ivAdapter.setImageBitmap(bitmap);
         }
         else{
-            mPictureHolder.ivAdapter.setImageBitmap(getDrableImage(mContext,"isloading"));
+            pictureHolder.ivAdapter.setImageBitmap(getDrableImage(mContext,"isloading"));
         }
-        mPictureHolder.textView.setText(stringInfo);
+        pictureHolder.textView.setText(stringInfo);
         if (itemClick!=null){
-            mPictureHolder.textView.setOnClickListener(new View.OnClickListener() {
+            pictureHolder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     itemClick.setText(position);

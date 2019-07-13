@@ -23,8 +23,8 @@ import okhttp3.Response;
 public class HttpClientUtils {
     private static HttpClientUtils httpClientUtils = null;
     private  OkHttpClient okHttpClient = null;
-    private  Response response  = null ;
-    private  boolean getResponseFlag = true;
+//    private  Response response  = null ;
+//    private  boolean getResponseFlag = true;
     public static HttpClientUtils getInstance() {
 
         if (httpClientUtils == null) {
@@ -40,8 +40,8 @@ public class HttpClientUtils {
 /*
 * 封装的http get请求,返回得到的response
 * */
-    private void httpGet(String url){
-        getResponseFlag = false;
+    private MyResponse httpGet(String url){
+        MyResponse myResponse = new MyResponse();
         final Request request = new Request.Builder()
                 .url(url)
                 .get()//默认就是GET请求，可以不写
@@ -51,26 +51,25 @@ public class HttpClientUtils {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                myResponse.setResponseOnFail();
                 Log.d("okhttp", "onFailure: "+e);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                setResponse(response);
+                myResponse.setResponse(response);
                 Log.d("okhttp", "success ");
 
             }
         });
+        return myResponse;
     }
 
-    private void setResponse(Response response) {
-        this.getResponseFlag = true;
-        this.response = response;
-    }
+
 
     public String httpGetString(String url){
-        httpGet(url);
-        while(!this.getResponseFlag){
+        MyResponse myResponse = httpGet(url);
+        while(!myResponse.getResponseStatus()){
             int count = 0;
             boolean timeOut = false;
             timeOut = TimeUtils.sleepAndExceed(1,count, 5);
@@ -78,17 +77,13 @@ public class HttpClientUtils {
                 return "";
             count ++;
         }
-        try {
-            return response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
+
+        return myResponse.getResponseString();
     }
 
     public InputStream httpGetStream(String url){
-        httpGet(url);
-        while(!this.getResponseFlag){
+        MyResponse myResponse = httpGet(url);
+        while(!myResponse.getResponseStatus()){
             int count = 0;
             boolean timeOut = false;
             timeOut = TimeUtils.sleepAndExceed(1,count, 5);
@@ -96,7 +91,7 @@ public class HttpClientUtils {
                 return null;
             count ++;
         }
-        return response.body().byteStream();
+        return myResponse.getResponseStream();
     }
 
 }

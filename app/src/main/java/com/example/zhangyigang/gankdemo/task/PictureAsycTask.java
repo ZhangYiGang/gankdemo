@@ -66,16 +66,22 @@ public class PictureAsycTask extends AsyncTask {
         HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
         ArrayList<Bitmap > urlArray= new ArrayList<Bitmap>();
         for (String imageUrl:imageUrlArray) {
-            new Thread(new Runnable() {
+            Thread pictureThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    Log.d("now_time", "图片请求线程开始"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
                     InputStream inputStream = httpClientUtils.httpGetStream(imageUrl);
-                    Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+                    Log.d("now_time", "图片请求线程结束"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
                     urlArray.add(bitmap);
                 }
-            }).run();
+            });
+            pictureThread.start();
+            try {
+                pictureThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
         Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
