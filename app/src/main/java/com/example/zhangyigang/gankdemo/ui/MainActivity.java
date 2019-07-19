@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         viewPager.setAdapter(fragmentAdapter);
         viewPager.setCurrentItem(0);
         viewPager.addOnPageChangeListener(this);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         radioGroup.setOnCheckedChangeListener(this);
     }
 
@@ -60,10 +61,10 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 viewPager.setCurrentItem(1);
                 break;
             case R.id.button_page_3:
-                viewPager.setCurrentItem(2);
+                viewPager.setCurrentItem(0);
                 break;
             case R.id.button_page_4:
-                viewPager.setCurrentItem(3);
+                viewPager.setCurrentItem(1);
                 break;
         }
     }

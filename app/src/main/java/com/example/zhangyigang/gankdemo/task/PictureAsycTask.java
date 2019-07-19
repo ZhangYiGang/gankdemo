@@ -12,6 +12,7 @@ import android.util.Log;
 import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.utils.FileUtils;
 import com.example.zhangyigang.gankdemo.utils.HttpClientUtils;
+import com.example.zhangyigang.gankdemo.utils.ImageLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,25 +66,23 @@ public class PictureAsycTask extends AsyncTask {
         Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
         HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
         ArrayList<Bitmap > urlArray= new ArrayList<Bitmap>();
+        ArrayList<Thread> waitThread = new ArrayList<Thread>();
         for (String imageUrl:imageUrlArray) {
-            Thread pictureThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("now_time", "图片请求线程开始"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
-                    InputStream inputStream = httpClientUtils.httpGetStream(imageUrl);
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    Log.d("now_time", "图片请求线程结束"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
-                    urlArray.add(bitmap);
-                }
+            Thread pictureThread = new Thread(()-> {
+
+                Log.d("now_time", "图片请求线程开始"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+                InputStream inputStream = httpClientUtils.httpGetStream(imageUrl);
+                Bitmap bitmap = ImageLoader.loadBitmap(inputStream);
+                Log.d("picture_size","图片大小为"+bitmap.getByteCount());
+                Log.d("now_time", "图片请求线程结束"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+                urlArray.add(bitmap);
             });
             pictureThread.start();
-            try {
-                pictureThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+            waitThread.add(pictureThread);
         }
+//        waitThread.stream().
+        Bitmap bitmap = BitmapFactory.decodeStream(httpClientUtils.httpGetStream(imageUrlArray[0]));
+        Log.d("picture_size","图片大小为"+bitmap.getByteCount());
         Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
         return urlArray.toArray(new Bitmap[urlArray.size()]);
     }
