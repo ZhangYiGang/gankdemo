@@ -24,7 +24,8 @@ public class ImageLoader {
 //        以下图片获取方式为只获取图片大小
         BufferedInputStream buffer=new BufferedInputStream(inputStream);
         try {
-            buffer.mark(buffer.available());
+//            Log.d("picture_size", String.valueOf(buffer.available()));
+            buffer.mark(1024*1024);
             BitmapFactory.decodeStream(buffer,null,options);
 
             options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);

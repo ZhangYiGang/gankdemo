@@ -96,7 +96,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
 //    notifyDataSetChanged();
     }
 /*
-* 此方法只有在调用 notifyItemChanged(index)方法时才会生效
+* 以下方法只有在调用 notifyItemChanged(index)方法时才会生效
 * */
     @Override
     public void onBindViewHolder(@NonNull PictureHolder pictureHolder, int position, List<Object> payloads) {

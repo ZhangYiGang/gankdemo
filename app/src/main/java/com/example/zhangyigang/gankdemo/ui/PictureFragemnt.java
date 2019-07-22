@@ -22,6 +22,7 @@ import com.example.zhangyigang.gankdemo.adapter.MyDecoration;
 import com.example.zhangyigang.gankdemo.adapter.PictureAdapter;
 import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
+import com.example.zhangyigang.gankdemo.task.UrlAsycTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,10 +44,9 @@ public class PictureFragemnt extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private String [] mUrlArray;
     @BindView(R.id.rv_picture)
     public RecyclerView mRecyclerView;
     @BindView(R.id.rl_picture)
@@ -61,7 +61,11 @@ public class PictureFragemnt extends Fragment {
                 case Constant.HANDLER_PICTUREURL_WHAT:
                     Bitmap[] bitmapArray = (Bitmap[]) message.obj;
                     mPictureAdapter.flushBitmapPullup(bitmapArray);
+                    break;
 //                    PictureFragemnt.this.mPictureAdapter.setBitmap(bitmap);
+                case Constant.HANDLER_PICTURE_URL_WHAT:
+                     mUrlArray = (String[]) message.obj;
+
             }
         }
     };
@@ -103,18 +107,24 @@ public class PictureFragemnt extends Fragment {
         // Inflate the layout for this fragment
         View inflate = inflater.inflate(R.layout.fragment_picture, container, false);
         ButterKnife.bind(this,inflate);
+        initUrlData();
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));//设置layout
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
+                new Handler().post(new Runnable() {
                     @Override
                     public void run() {
-                        mPictureAsycTask = new PictureAsycTask(mHandler, PictureFragemnt.this.getActivity());
-                        mPictureAsycTask.execute();
-                        mRefreshLayout.setRefreshing(false);
+                        if (mUrlArray != null){
+                            mPictureAsycTask = new PictureAsycTask(mHandler, PictureFragemnt.this.getActivity());
+                            mPictureAsycTask.execute(mUrlArray);
+//                        todo 在这里要等待完成后再取消转
+                            mRefreshLayout.setRefreshing(false);
+                        }
+                        initUrlData();
                     }
-                },1000);
+
+                });
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(),2));
@@ -129,6 +139,11 @@ public class PictureFragemnt extends Fragment {
         return inflate;
     }
 
+    private void initUrlData() {
+        UrlAsycTask urlAsycTask =  new UrlAsycTask(mHandler,PictureFragemnt.this.getActivity());
+        urlAsycTask.execute(Constant.TYPE_ASYNC_PICTURE_URL);
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -139,12 +154,6 @@ public class PictureFragemnt extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
     }
 
     @Override
@@ -153,16 +162,6 @@ public class PictureFragemnt extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

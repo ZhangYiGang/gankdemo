@@ -8,19 +8,26 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.util.LruCache;
 
 import com.example.zhangyigang.gankdemo.constant.Constant;
-import com.example.zhangyigang.gankdemo.utils.FileUtils;
 import com.example.zhangyigang.gankdemo.utils.HttpClientUtils;
 import com.example.zhangyigang.gankdemo.utils.ImageLoader;
+import com.example.zhangyigang.gankdemo.utils.MyLruCache;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -30,21 +37,28 @@ import java.util.Calendar;
 public class PictureAsycTask extends AsyncTask {
     private Handler mHandler =null;
     private Activity mActivity = null;
-    public PictureAsycTask(Handler handler, Activity context){
+    private static  LruCache<String, Bitmap> mLruCache = null;
+    static {
+        int maxMemory = (int) Runtime.getRuntime().maxMemory();
+        Log.d("max_memory", String.valueOf(maxMemory));
+        int cacheSize = maxMemory / 8;
+        // 设置图片缓存大小为程序最大可用内存的1/8,经测试，大概在100m左右,我设置本机内存在2g左右时
+        mLruCache = new MyLruCache<String, Bitmap>(cacheSize);
+    }
+
+    public PictureAsycTask(Handler handler, Activity context) {
         mHandler = handler;
         mActivity = context;
+
     }
     @Override
     protected Object doInBackground(Object[] objects) {
-        String url = "http://gank.io/api/data/福利/10/1";
-        getImageFromUrl(url);
+        String []  urlArray = Arrays.copyOf((String[]) objects,objects.length);
+        getImageFromUrl(urlArray);
         return null;
     }
 
-    private void getImageFromUrl(String content) {
-        HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
-        String jsonContent = httpClientUtils.httpGetString(content);
-        String [] imageUrlArray = parseJson(jsonContent);
+    private void getImageFromUrl(String[] imageUrlArray) {
         Bitmap [] bitmapArray = parseUrl(imageUrlArray);
 
         Message message = new Message();
@@ -64,27 +78,36 @@ public class PictureAsycTask extends AsyncTask {
 
     private Bitmap[] parseUrl(String[] imageUrlArray) {
         Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
-        HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
         ArrayList<Bitmap > urlArray= new ArrayList<Bitmap>();
-        ArrayList<Thread> waitThread = new ArrayList<Thread>();
+        int thread_length = imageUrlArray.length>Constant.PICTURE_THREAD_NUM?Constant.PICTURE_THREAD_NUM:imageUrlArray.length;
+        ExecutorService es = Executors.newFixedThreadPool(thread_length);
+        List<Callable<Object>> todo = new ArrayList<Callable<Object>>(thread_length);
         for (String imageUrl:imageUrlArray) {
-            Thread pictureThread = new Thread(()-> {
-
-                Log.d("now_time", "图片请求线程开始"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
-                InputStream inputStream = httpClientUtils.httpGetStream(imageUrl);
-                Bitmap bitmap = ImageLoader.loadBitmap(inputStream);
-                Log.d("picture_size","图片大小为"+bitmap.getByteCount());
-                Log.d("now_time", "图片请求线程结束"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+            todo.add(Executors.callable( new Thread(()-> {
+//                Log.d("now_time", "图片请求线程开始"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+                Bitmap bitmap = loadBitmapFromUrl(imageUrl);
                 urlArray.add(bitmap);
-            });
-            pictureThread.start();
-            waitThread.add(pictureThread);
+            })));
         }
-//        waitThread.stream().
-        Bitmap bitmap = BitmapFactory.decodeStream(httpClientUtils.httpGetStream(imageUrlArray[0]));
-        Log.d("picture_size","图片大小为"+bitmap.getByteCount());
-        Log.d("now_time", String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+        try {
+            es.invokeAll(todo);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return urlArray.toArray(new Bitmap[urlArray.size()]);
+    }
+
+    private Bitmap loadBitmapFromUrl(String imageUrl) {
+        Bitmap bitmap = mLruCache.get(imageUrl);
+        if (bitmap == null) {
+            HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
+            InputStream inputStream = httpClientUtils.httpGetStream(imageUrl);
+            bitmap = ImageLoader.loadBitmap(inputStream);
+            Log.d("picture_size", "图片加载" + Thread.currentThread().getName() + "   " + bitmap.getByteCount());
+//                Log.d("now_time", "图片请求线程结束"+Thread.currentThread().getName()+"   "+String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)));
+            mLruCache.put(imageUrl,bitmap);
+           }
+        return bitmap;
     }
 
     private String[] parseJson(String content) {
