@@ -2,6 +2,7 @@ package com.example.zhangyigang.gankdemo.ui;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageView;
 import android.widget.Toast;
 import com.example.zhangyigang.gankdemo.R;
 import com.example.zhangyigang.gankdemo.adapter.MyDecoration;
@@ -24,6 +26,7 @@ import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
 import com.example.zhangyigang.gankdemo.task.UrlAsycTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -128,14 +131,30 @@ public class PictureFragemnt extends Fragment {
             }
         });
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(),2));
-        mRecyclerView.setAdapter(mPictureAdapter = new PictureAdapter( this.getContext()));//设置adapter
-//        mRecyclerView.addItemDecoration(new MyDecoration(this.getContext(),MyDecoration.VERTICAL_LIST));
+        mPictureAdapter = new PictureAdapter( this.getContext());
         mPictureAdapter.setItemClick(new PictureAdapter.ItemClick() {
             @Override
             public void setText(int position) {
                 Toast.makeText(PictureFragemnt.this.getContext(),"这是"+position+"个",Toast.LENGTH_SHORT).show();
             }
+
+            @Override
+            public void setOnclick(Bitmap bitmap) {
+                Intent newIntent = new Intent(PictureFragemnt.this.getActivity(),SingleActivity.class);
+                Bundle bundle = new Bundle();
+//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//    bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+//    byte buff[] buff = baos.toByteArray();
+//                mIntent.putExtra("image", buff);
+//                newIntent.setData(uri);
+//                bundle.putSerializable("bitmap",bitmap);
+//                "com.example.zhangyigang.zoomview"
+                startActivity(newIntent);
+            }
         });
+        mRecyclerView.setAdapter(mPictureAdapter);//设置adapter
+//        mRecyclerView.addItemDecoration(new MyDecoration(this.getContext(),MyDecoration.VERTICAL_LIST));
+
         return inflate;
     }
 

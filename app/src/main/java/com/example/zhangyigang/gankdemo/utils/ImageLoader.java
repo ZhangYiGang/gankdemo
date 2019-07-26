@@ -25,6 +25,7 @@ public class ImageLoader {
         BufferedInputStream buffer=new BufferedInputStream(inputStream);
         try {
 //            Log.d("picture_size", String.valueOf(buffer.available()));
+//            只获取到1m大小
             buffer.mark(1024*1024);
             BitmapFactory.decodeStream(buffer,null,options);
 

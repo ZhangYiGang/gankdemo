@@ -1,6 +1,7 @@
 package com.example.zhangyigang.gankdemo.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -39,15 +40,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
     private int initalNum = Constant.PICTURE_ADAPTER_INITUM_DATA_NUM;
     private int addNum = Constant.PICTURE_ADAPTER_ADD_DATA_NUM;
     private int mNowStart, mNowEnd;
-    public PictureAdapter(ArrayList<HashMap<String, Object>>  data){
-        mData = data;
-    }
     public PictureAdapter( Context context){
         mContext = context;
         initData();
     }
     public interface ItemClick{
          void setText(int position);
+         void setOnclick(Bitmap bitmap);
     }
 
     public void setItemClick(ItemClick itemClick){
@@ -134,7 +133,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
             pictureHolder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    itemClick.setText(position);
+
+                }
+            });
+            pictureHolder.ivAdapter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    itemClick.setOnclick(bitmap);
                 }
             });
         }
@@ -148,7 +153,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
         return mData.size();
     }
 
-    public class PictureHolder extends RecyclerView.ViewHolder {
+    public class PictureHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.text_num)
         public TextView textView;
         @BindView(R.id.iv_adapter)
@@ -156,6 +161,19 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
         public PictureHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this,itemView);
+
+
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.iv_adapter:
+                    PictureAdapter.this.itemClick.setOnclick(ivAdapter);
+                    break;
+
+            }
 
         }
     }

@@ -14,7 +14,8 @@ android {
 
         targetCompatibility = "8"
 
-        sourceCompatibility = "8" }
+        sourceCompatibility = "8"
+    }
 
     lintOptions {
         abortOnError false
