@@ -23,6 +23,7 @@ import com.example.zhangyigang.gankdemo.adapter.PictureAdapter;
 import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
 import com.example.zhangyigang.gankdemo.task.UrlAsycTask;
+import com.example.zhangyigang.gankdemo.utils.MyLruCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +55,15 @@ public class PictureFragemnt extends Fragment {
     public PictureAdapter mPictureAdapter =null;
     public PictureAsycTask mPictureAsycTask = null;
     private OnFragmentInteractionListener mListener = null;
+
+    static {
+        int maxMemory = (int) Runtime.getRuntime().maxMemory();
+        Log.d("max_memory", String.valueOf(maxMemory));
+        int cacheSize = maxMemory / 8;
+        // 设置图片缓存大小为程序最大可用内存的1/8,经测试，大概在100m左右,我设置本机内存在2g左右时
+        mLruCache = new MyLruCache<String, Bitmap>(cacheSize);
+    }
+
     private  Handler mHandler =new Handler(){
         @Override
         public void handleMessage(Message message){
