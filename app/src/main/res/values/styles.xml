@@ -8,16 +8,21 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:listDivider">@drawable/divider_bg</item>
     </style>
+
     <style name="tab_button">
 
-            <item name="android:layout_width">0dp</item>
-            <item name="android:layout_weight">1</item>
-            <item name="android:layout_height">match_parent</item>
-            <item name="android:button">@null</item>
-            <item name="android:gravity">center</item>
-            <item name="android:paddingTop">3dp</item>
-            <item name="android:textColor">@color/fullBlack</item>
-            <item name="android:textSize">18sp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:textColor">@color/fullBlack</item>
+        <item name="android:textSize">18sp</item>
     </style>
+
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>
