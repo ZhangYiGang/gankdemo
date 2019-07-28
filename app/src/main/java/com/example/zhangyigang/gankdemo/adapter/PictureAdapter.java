@@ -16,7 +16,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.zhangyigang.gankdemo.R;
+import com.example.zhangyigang.gankdemo.bean.PictureBean;
 import com.example.zhangyigang.gankdemo.constant.Constant;
+import com.example.zhangyigang.gankdemo.utils.ImageLoader;
 
 import org.w3c.dom.Text;
 
@@ -46,7 +48,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
     }
     public interface ItemClick{
          void setText(int position);
-         void setOnclick(Bitmap bitmap);
+         void setOnclick(String bitmapUrl,boolean isLocal);
     }
 
     public void setItemClick(ItemClick itemClick){
@@ -71,6 +73,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
             itemData = new  HashMap<String, Object>();
             itemData.put("pictureText", "" + (char) i);
             itemData.put("pictureUrl",null);
+            itemData.put("pictureBitmap",null);
             mData.add(itemData);
 //            mData.add("" + (char) i);
         }
@@ -80,15 +83,16 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
     /*
     * 这个函数是为了刷新时确定上下界
     * */
-    public void flushBitmapPullup(Bitmap[] bitmapArray){
+    public void flushBitmapPullup(PictureBean[] pictureBeans){
         HashMap<String, Object> mapData ;
         mNowEnd = mNowStart;
-        ArrayList <HashMap<String, Object>>  changeData = new ArrayList<HashMap<String,Object>>();
-        for (Bitmap bitmap: bitmapArray) {
+//        ArrayList <HashMap<String, Object>>  changeData = new ArrayList<HashMap<String,Object>>();
+        for (PictureBean pictureBean: pictureBeans) {
             mapData = (HashMap<String, Object>) mData.get(mNowEnd);
             mNowEnd++;
-            mapData.put("pictureUrl", bitmap);
-            changeData.add(mapData);
+            mapData.put("pictureBitmap", pictureBean.getmPictureBitmap());
+            mapData.put("pictureUrl",pictureBean.getmPictureUrl());
+//            changeData.add(mapData);
         }
 
         notifyItemRangeChanged(mNowStart,mNowEnd-mNowStart);
@@ -106,7 +110,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
         } else {
             HashMap<String, Object> mapData = (HashMap<String, Object>) (payloads.get(position));
             String stringInfo= (String) mapData.get("pictureText");
-            Bitmap bitmap = (Bitmap) mapData.get("pictureUrl");
+            Bitmap bitmap = (Bitmap) mapData.get("pictureBitmap");
             if (stringInfo != null) {
 //                holder.mPbDownProgress.setProgress(appInfoBean.getProgress());
                 pictureHolder.textView.setText(stringInfo);
@@ -120,26 +124,30 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
     public void onBindViewHolder(@NonNull PictureHolder pictureHolder, final int position) {
         HashMap<String, Object> mapData = (HashMap<String, Object>) mData.get(position);
         String stringInfo= (String) mapData.get("pictureText");
-        Bitmap bitmap = (Bitmap) mapData.get("pictureUrl");
+        Bitmap bitmap = (Bitmap) mapData.get("pictureBitmap");
+        String bitmapUrl = (String)mapData.get("pictureUrl");
+        final  boolean isLocal ;
 //        todo 这里后面可以添加一个函数 bind（data)
         if (bitmap != null){
             pictureHolder.ivAdapter.setImageBitmap(bitmap);
+            isLocal = false;
         }
         else{
-            pictureHolder.ivAdapter.setImageBitmap(getDrableImage(mContext,"isloading"));
+            pictureHolder.ivAdapter.setImageBitmap(ImageLoader.getDrableImage(mContext,"isloading"));
+            isLocal = true;
         }
         pictureHolder.textView.setText(stringInfo);
         if (itemClick!=null){
             pictureHolder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    itemClick.setText(position);
                 }
             });
             pictureHolder.ivAdapter.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    itemClick.setOnclick(bitmap);
+                    itemClick.setOnclick(bitmapUrl,isLocal);
                 }
             });
         }
@@ -153,7 +161,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
         return mData.size();
     }
 
-    public class PictureHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class PictureHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.text_num)
         public TextView textView;
         @BindView(R.id.iv_adapter)
@@ -166,24 +174,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureH
 
         }
 
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()){
-                case R.id.iv_adapter:
-                    PictureAdapter.this.itemClick.setOnclick(ivAdapter);
-                    break;
-
-            }
-
-        }
     }
-    public static Bitmap getDrableImage(Context context, String name) {
-        ApplicationInfo info = context.getApplicationInfo();
-        Resources resources = context.getResources();
-        int resId = resources.getIdentifier(name, "drawable", info.packageName);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 2;
-        return BitmapFactory.decodeResource(resources, resId, options);
-    }
+
 
 }

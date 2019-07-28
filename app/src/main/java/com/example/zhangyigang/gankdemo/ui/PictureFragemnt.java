@@ -13,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.example.zhangyigang.gankdemo.R;
 import com.example.zhangyigang.gankdemo.adapter.MyDecoration;
 import com.example.zhangyigang.gankdemo.adapter.PictureAdapter;
+import com.example.zhangyigang.gankdemo.bean.PictureBean;
 import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
 import com.example.zhangyigang.gankdemo.task.UrlAsycTask;
@@ -58,7 +60,7 @@ public class PictureFragemnt extends Fragment {
     public PictureAdapter mPictureAdapter =null;
     public PictureAsycTask mPictureAsycTask = null;
     private OnFragmentInteractionListener mListener = null;
-
+    public static MyLruCache<String, Bitmap> mLruCache = null;
     static {
         int maxMemory = (int) Runtime.getRuntime().maxMemory();
         Log.d("max_memory", String.valueOf(maxMemory));
@@ -72,8 +74,8 @@ public class PictureFragemnt extends Fragment {
         public void handleMessage(Message message){
             switch (message.what){
                 case Constant.HANDLER_PICTUREURL_WHAT:
-                    Bitmap[] bitmapArray = (Bitmap[]) message.obj;
-                    mPictureAdapter.flushBitmapPullup(bitmapArray);
+                    PictureBean[] pictureBeans = (PictureBean[]) message.obj;
+                    mPictureAdapter.flushBitmapPullup(pictureBeans);
                     break;
 //                    PictureFragemnt.this.mPictureAdapter.setBitmap(bitmap);
                 case Constant.HANDLER_PICTURE_URL_WHAT:
@@ -149,16 +151,10 @@ public class PictureFragemnt extends Fragment {
             }
 
             @Override
-            public void setOnclick(Bitmap bitmap) {
+            public void setOnclick(String bitmapUrl,boolean isLocal) {
                 Intent newIntent = new Intent(PictureFragemnt.this.getActivity(),SingleActivity.class);
-                Bundle bundle = new Bundle();
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//    byte buff[] buff = baos.toByteArray();
-//                mIntent.putExtra("image", buff);
-//                newIntent.setData(uri);
-//                bundle.putSerializable("bitmap",bitmap);
-//                "com.example.zhangyigang.zoomview"
+                newIntent.putExtra("bitmapUrl", bitmapUrl);
+                newIntent.putExtra("isLocal",isLocal);
                 startActivity(newIntent);
             }
         });
