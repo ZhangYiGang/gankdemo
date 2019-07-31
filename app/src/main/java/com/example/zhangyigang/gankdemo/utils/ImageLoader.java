@@ -1,8 +1,10 @@
 package com.example.zhangyigang.gankdemo.utils;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.example.zhangyigang.gankdemo.constant.Constant;
 
@@ -18,6 +20,13 @@ public class ImageLoader {
 
     private  static int reqWidth = Constant.PICTURE_WIDTH;
     private static int reqHeight = Constant.PICTURE_HEIGHT;
+    public static Bitmap loadBitmap(InputStream inputStream, boolean original) {
+        if(original == false){
+            return loadBitmap(inputStream);
+        }
+        return BitmapFactory.decodeStream(inputStream);
+    }
+
     public static Bitmap loadBitmap(InputStream inputStream) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -66,5 +75,13 @@ public class ImageLoader {
         }
         byte[] data = byteArrayOutputStream.toByteArray();
         BitmapFactory.decodeByteArray(data,0,data.length,null);
+    }
+    public static Bitmap getDrableImage(Context context, String name) {
+        ApplicationInfo info = context.getApplicationInfo();
+        Resources resources = context.getResources();
+        int resId = resources.getIdentifier(name, "drawable", info.packageName);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 2;
+        return BitmapFactory.decodeResource(resources, resId, options);
     }
 }

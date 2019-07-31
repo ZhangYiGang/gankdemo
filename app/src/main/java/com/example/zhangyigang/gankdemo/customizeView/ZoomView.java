@@ -4,17 +4,19 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.media.Image;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
+
+import android.widget.ImageView;
 
 /**
  * @author yigang zhang
  * @date 19-7-23
  * 可以滑动的自定义view
+ * 目前bug： 影响图片正常显示
  */
-public class ZoomView extends View {
-
+public class ZoomView extends android.support.v7.widget.AppCompatImageView {
 
         /**
          * 初始化状态常量
@@ -165,6 +167,7 @@ public class ZoomView extends View {
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
+//            有事件的时候更新view的状态
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_POINTER_DOWN:
                     if (event.getPointerCount() == 2) {
@@ -363,14 +366,20 @@ public class ZoomView extends View {
                     currentBitmapHeight = bitmapHeight * initRatio;
                 } else {
                     // 当图片的宽高都小于屏幕宽高时，直接让图片居中显示
-                    float translateX = (width - sourceBitmap.getWidth()) / 2f;
-                    float translateY = (height - sourceBitmap.getHeight()) / 2f;
+                    float widthRatio =  width / (bitmapWidth * 1.0f);
+                    float heightRatio = height / (bitmapHeight * 1.0f);
+                    initRatio = widthRatio > heightRatio? heightRatio:widthRatio;
+                    float translateX = (width - (bitmapWidth * initRatio)) / 2f;
+//                            (width - sourceBitmap.getWidth()) / 2f;
+                    float translateY = (height - (bitmapHeight * initRatio)) / 2f;;
+//                            (height - sourceBitmap.getHeight()) / 2f;
+                    matrix.postScale(initRatio, initRatio);
                     matrix.postTranslate(translateX, translateY);
                     totalTranslateX = translateX;
                     totalTranslateY = translateY;
-                    totalRatio = initRatio = 1f;
-                    currentBitmapWidth = bitmapWidth;
-                    currentBitmapHeight = bitmapHeight;
+                    totalRatio = initRatio ;
+                    currentBitmapWidth = bitmapWidth *initRatio;
+                    currentBitmapHeight = bitmapHeight*initRatio;
                 }
                 canvas.drawBitmap(sourceBitmap, matrix, null);
             }
