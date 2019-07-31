@@ -26,11 +26,6 @@ import com.example.zhangyigang.gankdemo.constant.Constant;
 import com.example.zhangyigang.gankdemo.task.PictureAsycTask;
 import com.example.zhangyigang.gankdemo.task.UrlAsycTask;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
