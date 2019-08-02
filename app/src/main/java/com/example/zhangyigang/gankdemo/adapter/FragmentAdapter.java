@@ -1,8 +1,11 @@
-package com.example.zhangyigang.gankdemo.ui;
+package com.example.zhangyigang.gankdemo.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.example.zhangyigang.gankdemo.ui.PictureFragemnt;
+import com.example.zhangyigang.gankdemo.ui.VideoFragment;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
     public static int PAGE_NUM = 2;

@@ -168,6 +168,7 @@ public class ZoomView extends android.support.v7.widget.AppCompatImageView {
         @Override
         public boolean onTouchEvent(MotionEvent event) {
 //            有事件的时候更新view的状态
+//            getAction 是16位数，高八位为getActionIndex 低八位为getActionMasked getActionIndex表示第几根手指
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_POINTER_DOWN:
                     if (event.getPointerCount() == 2) {

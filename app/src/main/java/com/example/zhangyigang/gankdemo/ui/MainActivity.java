@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import com.example.zhangyigang.gankdemo.R;
-
-import org.json.JSONObject;
+import com.example.zhangyigang.gankdemo.adapter.FragmentAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
