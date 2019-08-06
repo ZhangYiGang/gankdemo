@@ -2,6 +2,7 @@ package com.example.zhangyigang.gankdemo.customizeView;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,11 +26,17 @@ public class TagLayout extends LinearLayout implements View.OnTouchListener {
     public TagLayout(Context context) {
         super(context,null);
 
+    }
+
+    public TagLayout(Context context,  AttributeSet attrs){
+//        如果需要xml会制这个方法必须存在
+        super(context,attrs);
         initView();
     }
 
     private void initView() {
-
+        ZoomView zoomView = findViewById(R.id.zoom_view);
+        this.addView(zoomView);
         this.setOnTouchListener(this);
     }
 
@@ -73,6 +80,14 @@ public class TagLayout extends LinearLayout implements View.OnTouchListener {
     }
 
     private void moveView(int x, int y) {
+        if(touchView == null) return;
+        RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+        params.leftMargin = x - startX + startTouchViewLeft;
+        params.topMargin = y - startY + startTouchViewTop;
+        //限制子控件移动必须在视图范围内
+        if(params.leftMargin<0||(params.leftMargin+touchView.getWidth())>getWidth())params.leftMargin = touchView.getLeft();
+        if(params.topMargin<0||(params.topMargin+touchView.getHeight())>getHeight())params.topMargin = touchView.getTop();
+        touchView.setLayoutParams(params);
 
     }
 

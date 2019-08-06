@@ -1,9 +1,12 @@
 package com.example.zhangyigang.gankdemo.customizeView;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.example.zhangyigang.gankdemo.R;
 
 /**
  * @author yigang zhang
@@ -37,7 +40,7 @@ public class PictureTagView extends RelativeLayout {
     }
 
     private void initViews() {
-        
+        LayoutInflater.from(context).inflate(R.layout.item_picture, this,true);
     }
 
 
